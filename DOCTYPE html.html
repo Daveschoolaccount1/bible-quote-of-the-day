@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Quote of the Day</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 10px;
+      max-width: 400px;
+      text-align: center;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #quote {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #author {
+      font-size: 1em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div id="quote">Loading quote...</div>
+  <div id="author"></div>
+
+  <script>
+    async function getQuote() {
+      try {
+        const res = await fetch('https://api.quotable.io/random');
+        const data = await res.json();
+        document.getElementById('quote').textContent = `"${data.content}"`;
+        document.getElementById('author').textContent = `— ${data.author}`;
+      } catch (err) {
+        document.getElementById('quote').textContent = "Oops! Couldn't load the quote.";
+      }
+    }
+    getQuote();
+  </script>
+</body>
+</html>
