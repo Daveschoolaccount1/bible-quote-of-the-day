@@ -2,162 +2,160 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Verse of the Day</title>
+<title>Bible Verse of the Day (NIV)</title>
 <style>
-  body {
-    font-family: 'Georgia', serif;
-    text-align: center;
-    background: #fffbe6;
-    color: #4e342e;
-    overflow: hidden;
-    margin: 0;
-    height: 100vh;
-  }
+    body {
+        background: #fffbea;
+        color: #3a2c1a;
+        font-family: 'Georgia', serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
 
-  #verse {
-    font-size: 1.8em;
-    max-width: 80%;
-    margin: 100px auto 20px;
-    line-height: 1.5;
-    position: relative;
-    padding: 20px;
-    border-radius: 15px;
-    background: rgba(255, 255, 240, 0.8);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-  }
+    /* Verse container */
+    .verse-box {
+        max-width: 700px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        transition: opacity 0.4s ease-in-out;
+        min-height: 100px;
+    }
 
-  #reference {
-    font-size: 1.2em;
-    font-style: italic;
-    margin-bottom: 20px;
-  }
+    .verse-text {
+        font-size: 1.5em;
+        font-weight: normal;
+    }
 
-  #timestamp {
-    font-size: 0.9em;
-    color: #6d4c41;
-    margin-bottom: 20px;
-  }
+    .verse-ref {
+        margin-top: 10px;
+        font-style: italic;
+        font-size: 1.1em;
+    }
 
-  button {
-    padding: 10px 20px;
-    font-size: 1em;
-    background: #ffeb3b;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    color: #4e342e;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #ffe600;
-  }
+    .timestamp {
+        margin-top: 8px;
+        font-size: 0.9em;
+        color: #5a4a2d;
+    }
 
-  /* Shimmer Effect */
-  .shimmer {
-    position: relative;
-    color: #4e342e;
-  }
-  .shimmer::after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    color: transparent;
-    background: linear-gradient(90deg, rgba(255,235,59,0) 0%, rgba(255,235,59,1) 50%, rgba(255,235,59,0) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: shimmerMove 2s linear infinite;
-    pointer-events: none;
-  }
-  @keyframes shimmerMove {
-    0% { background-position: 200% center; }
-    100% { background-position: -200% center; }
-  }
+    button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+        background: gold;
+        color: #3a2c1a;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: background 0.3s;
+    }
 
-  /* Bubbles */
-  .bubble {
-    position: absolute;
-    bottom: -50px;
-    background: rgba(255, 223, 88, 0.6);
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
-    animation: floatUp linear infinite;
-  }
-  @keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
-  }
+    button:hover {
+        background: #ffdd55;
+    }
+
+    /* Bubbles */
+    .bubble {
+        position: fixed;
+        background: rgba(255, 215, 0, 0.5);
+        border-radius: 50%;
+        animation: floatUp linear infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    @keyframes floatUp {
+        0% { transform: translateY(100vh); opacity: 0; }
+        10% { opacity: 0.4; }
+        90% { opacity: 0.4; }
+        100% { transform: translateY(-10vh); opacity: 0; }
+    }
+
+    /* Loading shimmer */
+    .loading {
+        background: linear-gradient(90deg, #fffbea 25%, #fdf5d4 50%, #fffbea 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.2s infinite;
+        height: 1.5em;
+        border-radius: 5px;
+        display: inline-block;
+        width: 80%;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
 </style>
 </head>
 <body>
 
-<div id="verse" class="shimmer" data-text="">Loading verse...</div>
-<div id="reference"></div>
-<div id="timestamp"></div>
+<div class="verse-box" id="verseBox">
+    <div class="verse-text" id="verseText"><span class="loading"></span></div>
+    <div class="verse-ref" id="verseRef"></div>
+    <div class="timestamp" id="timestamp"></div>
+</div>
 <button onclick="getVerse()">Get Another Verse</button>
 
-<audio id="choir-sound" preload="auto">
-  <source src="https://actions.google.com/sounds/v1/human_voices/chorus_ahh.ogg" type="audio/ogg">
-  <source src="https://actions.google.com/sounds/v1/human_voices/chorus_ahh.mp3" type="audio/mpeg">
-</audio>
-
 <script>
-  // Create bubbles
-  function createBubbles() {
-    for (let i = 0; i < 15; i++) {
-      let bubble = document.createElement('div');
-      bubble.classList.add('bubble');
-      let size = Math.random() * 20 + 10;
-      bubble.style.width = size + 'px';
-      bubble.style.height = size + 'px';
-      bubble.style.left = Math.random() * 100 + '%';
-      bubble.style.animationDuration = (Math.random() * 20 + 20) + 's';
-      document.body.appendChild(bubble);
+    // Create bubbles
+    for (let i = 0; i < 20; i++) {
+        let bubble = document.createElement('div');
+        let size = Math.random() * 15 + 8;
+        bubble.className = 'bubble';
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+        bubble.style.left = Math.random() * 100 + 'vw';
+        bubble.style.animationDuration = (Math.random() * 12 + 8) + 's';
+        document.body.appendChild(bubble);
     }
-  }
-  createBubbles();
 
-  async function getVerse() {
-    const choir = document.getElementById('choir-sound');
-    try {
-      let res = await fetch('https://labs.bible.org/api/?passage=random&type=json&formatting=plain');
-      let data = await res.json();
-      let text = data[0].text.trim();
-      let reference = `${data[0].bookname} ${data[0].chapter}:${data[0].verse} (NIV)`;
+    async function getVerse() {
+        const verseText = document.getElementById('verseText');
+        const verseRef = document.getElementById('verseRef');
+        const timestamp = document.getElementById('timestamp');
+        
+        // Show loading shimmer
+        verseText.innerHTML = '<span class="loading"></span>';
+        verseRef.textContent = '';
+        timestamp.textContent = '';
 
-      let verseEl = document.getElementById('verse');
-      verseEl.classList.remove('shimmer');
-      void verseEl.offsetWidth; // restart shimmer animation
-      verseEl.setAttribute('data-text', `"${text}"`);
-      verseEl.innerText = `"${text}"`;
-      verseEl.classList.add('shimmer');
+        try {
+            let res = await fetch('https://labs.bible.org/api/?passage=random&type=json');
+            let data = await res.json();
+            let verse = data[0];
 
-      document.getElementById('reference').innerText = reference;
+            // Filter out genealogy / lists
+            let badPatterns = /(son of|the son of|begat|cubits|from the family of|descendant of)/i;
+            if (badPatterns.test(verse.text)) {
+                return getVerse(); // Retry
+            }
 
-      // Timestamp in WIB
-      let now = new Date();
-      let wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000)); // WIB offset
-      document.getElementById('timestamp').innerText = "Last updated: " + wibTime.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' });
+            verseText.textContent = `"${verse.text.trim()}"`;
+            verseRef.textContent = `${verse.bookname} ${verse.chapter}:${verse.verse} (NIV)`;
 
-      // Play choir sound
-      choir.currentTime = 0;
-      choir.play().catch(e => console.log('Audio blocked until user interaction:', e));
-
-    } catch (e) {
-      document.getElementById('verse').innerText = "Error loading verse.";
-      console.error(e);
+            // Local Indonesian time
+            let options = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'Asia/Jakarta' };
+            let date = new Date().toLocaleString('en-US', options);
+            timestamp.textContent = `Last updated: ${date}`;
+        } catch (e) {
+            verseText.textContent = "Error loading verse.";
+            console.error(e);
+        }
     }
-  }
 
-  // Load initial verse after user interacts once
-  document.body.addEventListener('click', function init() {
-    getVerse();
-    document.body.removeEventListener('click', init);
-  });
+    // Load verse immediately on page load
+    window.onload = getVerse;
 </script>
 
 </body>
