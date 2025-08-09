@@ -1,240 +1,164 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Daily Bible Verse</title>
-  <style>
-    body {
-      font-family: 'Georgia', serif;
-      background: radial-gradient(circle at center, #fffde7, #fff8e1, #ffecb3);
-      color: #4e342e;
-      text-align: center;
-      padding: 40px;
-      overflow: hidden;
-      position: relative;
-    }
+<meta charset="UTF-8">
+<title>Verse of the Day</title>
+<style>
+  body {
+    font-family: 'Georgia', serif;
+    text-align: center;
+    background: #fffbe6;
+    color: #4e342e;
+    overflow: hidden;
+    margin: 0;
+    height: 100vh;
+  }
 
-    /* Heavenly rays */
-    body::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(255, 223, 186, 0.2) 0px,
-        rgba(255, 223, 186, 0.2) 10px,
-        transparent 10px,
-        transparent 20px
-      );
-      transform-origin: center;
-      animation: rotateRays 60s linear infinite, pulseRays 6s ease-in-out infinite;
-      z-index: 0;
-    }
+  #verse {
+    font-size: 1.8em;
+    max-width: 80%;
+    margin: 100px auto 20px;
+    line-height: 1.5;
+    position: relative;
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(255, 255, 240, 0.8);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
 
-    @keyframes rotateRays {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+  #reference {
+    font-size: 1.2em;
+    font-style: italic;
+    margin-bottom: 20px;
+  }
 
-    @keyframes pulseRays {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
+  #timestamp {
+    font-size: 0.9em;
+    color: #6d4c41;
+    margin-bottom: 20px;
+  }
 
-    .verse-box {
-      transition: opacity 0.5s ease;
-      opacity: 1;
-      position: relative;
-      z-index: 1;
-    }
+  button {
+    padding: 10px 20px;
+    font-size: 1em;
+    background: #ffeb3b;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #4e342e;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #ffe600;
+  }
 
-    .verse {
-      font-size: 1.8em;
-      font-style: italic;
-      max-width: 800px;
-      margin: auto;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
-      animation: holyGlow 3s ease-in-out infinite;
-      position: relative;
-    }
+  /* Shimmer Effect */
+  .shimmer {
+    position: relative;
+    color: #4e342e;
+  }
+  .shimmer::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: transparent;
+    background: linear-gradient(90deg, rgba(255,235,59,0) 0%, rgba(255,235,59,1) 50%, rgba(255,235,59,0) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shimmerMove 2s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes shimmerMove {
+    0% { background-position: 200% center; }
+    100% { background-position: -200% center; }
+  }
 
-    @keyframes holyGlow {
-      0%, 100% { box-shadow: 0 0 20px rgba(255, 223, 0, 0.3), 0 0 40px rgba(255, 223, 0, 0.15); }
-      50% { box-shadow: 0 0 35px rgba(255, 223, 0, 0.6), 0 0 60px rgba(255, 223, 0, 0.3); }
-    }
-
-    /* Golden shimmer effect */
-    .shimmer {
-      background: linear-gradient(90deg, #4e342e, #ffeb3b, #4e342e);
-      background-size: 200% auto;
-      color: transparent;
-      background-clip: text;
-      -webkit-background-clip: text;
-      animation: shimmerMove 2s linear infinite;
-    }
-
-    @keyframes shimmerMove {
-      0% { background-position: 200% center; }
-      100% { background-position: 0% center; }
-    }
-
-    .verse-box.glow .verse {
-      animation: burstGlow 0.8s ease;
-    }
-
-    @keyframes burstGlow {
-      0% { box-shadow: 0 0 60px rgba(255, 223, 0, 0.8), 0 0 100px rgba(255, 223, 0, 0.6); }
-      100% { box-shadow: 0 0 20px rgba(255, 223, 0, 0.3), 0 0 40px rgba(255, 223, 0, 0.15); }
-    }
-
-    .verse::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -150%;
-      width: 50%;
-      height: 100%;
-      background: linear-gradient(120deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.1) 100%);
-      transform: skewX(-20deg);
-      animation: lightSweep 15s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    @keyframes lightSweep {
-      0% { left: -150%; }
-      10% { left: 150%; }
-      100% { left: 150%; }
-    }
-
-    .reference {
-      margin-top: 15px;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-
-    .timestamp {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #6d4c41;
-    }
-
-    button {
-      margin-top: 25px;
-      padding: 12px 20px;
-      font-size: 1em;
-      border: none;
-      background: #ffca28;
-      color: #4e342e;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: background 0.3s;
-      position: relative;
-      z-index: 1;
-    }
-    button:hover {
-      background: #ffc107;
-    }
-  </style>
+  /* Bubbles */
+  .bubble {
+    position: absolute;
+    bottom: -50px;
+    background: rgba(255, 223, 88, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(1); opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-120vh) scale(1.2); opacity: 0; }
+  }
+</style>
 </head>
 <body>
-  <div class="verse-box" id="verseBox">
-    <div class="verse" id="verse">Loading...</div>
-    <div class="reference" id="reference"></div>
-    <div class="timestamp" id="timestamp"></div>
-  </div>
-  <button onclick="fadeVerse()">Get Another Verse</button>
 
-  <!-- Choir sound -->
-  <audio id="holySound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_0d6d5a0747.mp3?filename=angelic-choir-6042.mp3" preload="auto"></audio>
+<div id="verse" class="shimmer" data-text="">Loading verse...</div>
+<div id="reference"></div>
+<div id="timestamp"></div>
+<button onclick="getVerse()">Get Another Verse</button>
 
-  <script>
-    function fadeAudioIn(audio, duration = 1500) {
-      audio.volume = 0;
-      audio.play().catch(() => {});
-      let step = 0.05;
-      let interval = duration / (1 / step);
-      let fade = setInterval(() => {
-        if (audio.volume < 1) {
-          audio.volume = Math.min(1, audio.volume + step);
-        } else {
-          clearInterval(fade);
-        }
-      }, interval);
+<audio id="choir-sound" preload="auto">
+  <source src="https://actions.google.com/sounds/v1/human_voices/chorus_ahh.ogg" type="audio/ogg">
+  <source src="https://actions.google.com/sounds/v1/human_voices/chorus_ahh.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  // Create bubbles
+  function createBubbles() {
+    for (let i = 0; i < 15; i++) {
+      let bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      let size = Math.random() * 20 + 10;
+      bubble.style.width = size + 'px';
+      bubble.style.height = size + 'px';
+      bubble.style.left = Math.random() * 100 + '%';
+      bubble.style.animationDuration = (Math.random() * 20 + 20) + 's';
+      document.body.appendChild(bubble);
     }
+  }
+  createBubbles();
 
-    function fadeAudioOut(audio, duration = 1500) {
-      let step = 0.05;
-      let interval = duration / (1 / step);
-      let fade = setInterval(() => {
-        if (audio.volume > 0) {
-          audio.volume = Math.max(0, audio.volume - step);
-        } else {
-          audio.pause();
-          clearInterval(fade);
-        }
-      }, interval);
+  async function getVerse() {
+    const choir = document.getElementById('choir-sound');
+    try {
+      let res = await fetch('https://labs.bible.org/api/?passage=random&type=json&formatting=plain');
+      let data = await res.json();
+      let text = data[0].text.trim();
+      let reference = `${data[0].bookname} ${data[0].chapter}:${data[0].verse} (NIV)`;
+
+      let verseEl = document.getElementById('verse');
+      verseEl.classList.remove('shimmer');
+      void verseEl.offsetWidth; // restart shimmer animation
+      verseEl.setAttribute('data-text', `"${text}"`);
+      verseEl.innerText = `"${text}"`;
+      verseEl.classList.add('shimmer');
+
+      document.getElementById('reference').innerText = reference;
+
+      // Timestamp in WIB
+      let now = new Date();
+      let wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000)); // WIB offset
+      document.getElementById('timestamp').innerText = "Last updated: " + wibTime.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' });
+
+      // Play choir sound
+      choir.currentTime = 0;
+      choir.play().catch(e => console.log('Audio blocked until user interaction:', e));
+
+    } catch (e) {
+      document.getElementById('verse').innerText = "Error loading verse.";
+      console.error(e);
     }
+  }
 
-    async function getVerse() {
-      try {
-        const response = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json&order=random');
-        const data = await response.json();
-        let text = data.verse.details.text.trim();
-        let ref = data.verse.details.reference.trim();
-
-        const lower = text.toLowerCase();
-        const badPatterns = [
-          /son of [a-z]+/i,
-          /\b[0-9]+\s*cubits?\b/i,
-          /king\s+[a-z]+/i
-        ];
-        if (badPatterns.some(pattern => pattern.test(lower))) {
-          return getVerse();
-        }
-
-        let verseEl = document.getElementById('verse');
-        verseEl.classList.remove('shimmer'); // reset shimmer
-        verseEl.innerText = `"${text}"`;
-        document.getElementById('reference').innerText = `${ref} (NIV)`;
-
-        const now = new Date();
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' };
-        document.getElementById('timestamp').innerText =
-          `Last updated: ${now.toLocaleString('en-US', options)} WIB`;
-
-        let sound = document.getElementById('holySound');
-        sound.currentTime = 0;
-        fadeAudioIn(sound);
-        verseEl.classList.add('shimmer'); // start shimmer when choir starts
-        setTimeout(() => {
-          fadeAudioOut(sound);
-          verseEl.classList.remove('shimmer'); // stop shimmer after choir ends
-        }, 4000);
-
-      } catch (error) {
-        document.getElementById('verse').innerText = "Error fetching verse.";
-        document.getElementById('reference').innerText = "";
-      }
-    }
-
-    function fadeVerse() {
-      const box = document.getElementById('verseBox');
-      box.classList.remove('glow');
-      box.style.opacity = 0;
-      setTimeout(() => {
-        getVerse();
-        box.style.opacity = 1;
-        box.classList.add('glow');
-      }, 500);
-    }
-
+  // Load initial verse after user interacts once
+  document.body.addEventListener('click', function init() {
     getVerse();
-  </script>
+    document.body.removeEventListener('click', init);
+  });
+</script>
+
 </body>
 </html>
