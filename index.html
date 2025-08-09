@@ -64,27 +64,42 @@
 
   <script>
     function getWIBTime() {
-      // WIB is UTC+7
-      let nowUTC = new Date();
-      let nowWIB = new Date(nowUTC.getTime() + (7 * 60 * 60 * 1000));
-      return nowWIB.toLocaleString('en-GB', { 
+      const now = new Date();
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const wibTime = new Date(utc + (7 * 60 * 60 * 1000));
+      return wibTime.toLocaleString('en-GB', { 
         dateStyle: 'medium', 
         timeStyle: 'short' 
       }) + " WIB";
     }
 
+    function normalizeQuotes(text) {
+      return text
+        .replace(/[“”]/g, '"')
+        .replace(/[‘’]/g, "'");
+    }
+
     async function getBibleVerse() {
       try {
-        const url = `https://labs.bible.org/api/?passage=random&type=json&nocache=${Date.now()}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data && data.length > 0) {
-          const verseData = data[0];
-          document.getElementById('verse').textContent = `"${verseData.text.trim()}"`;
+        let verseData;
+        let attempts = 0;
+
+        // Keep fetching until we get something "wise" (min 10 words)
+        do {
+          const url = `https://labs.bible.org/api/?passage=random&type=json&nocache=${Date.now()}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          verseData = data[0];
+          attempts++;
+          if (attempts > 5) break; // prevent infinite loop
+        } while (verseData.text.split(" ").length < 10);
+
+        if (verseData) {
+          document.getElementById('verse').textContent = `"${normalizeQuotes(verseData.text.trim())}"`;
           document.getElementById('reference').textContent = `${verseData.bookname} ${verseData.chapter}:${verseData.verse}`;
           document.getElementById('timestamp').textContent = `Last updated: ${getWIBTime()}`;
         } else {
-          document.getElementById('verse').textContent = "Could not load verse.";
+          document.getElementById('verse').textContent = "Could not load a suitable verse.";
         }
       } catch (e) {
         document.getElementById('verse').textContent = "Error loading verse.";
