@@ -32,6 +32,25 @@
       font-size: 1.4rem;
       font-weight: bold;
       color: #6b4226;
+      margin-bottom: 20px;
+    }
+    #timestamp {
+      font-size: 1rem;
+      color: #6b4226;
+      margin-top: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #f7e9d7;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #4b3621;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #f2d8b6;
     }
   </style>
 </head>
@@ -39,17 +58,31 @@
   <div class="card">
     <div id="verse">Loading verse…</div>
     <div id="reference"></div>
+    <button onclick="getBibleVerse()">Get Another Verse</button>
+    <div id="timestamp"></div>
   </div>
 
   <script>
+    function getWIBTime() {
+      // WIB is UTC+7
+      let nowUTC = new Date();
+      let nowWIB = new Date(nowUTC.getTime() + (7 * 60 * 60 * 1000));
+      return nowWIB.toLocaleString('en-GB', { 
+        dateStyle: 'medium', 
+        timeStyle: 'short' 
+      }) + " WIB";
+    }
+
     async function getBibleVerse() {
       try {
-        const res = await fetch("https://labs.bible.org/api/?passage=random&type=json");
+        const url = `https://labs.bible.org/api/?passage=random&type=json&nocache=${Date.now()}`;
+        const res = await fetch(url);
         const data = await res.json();
         if (data && data.length > 0) {
           const verseData = data[0];
           document.getElementById('verse').textContent = `"${verseData.text.trim()}"`;
           document.getElementById('reference').textContent = `${verseData.bookname} ${verseData.chapter}:${verseData.verse}`;
+          document.getElementById('timestamp').textContent = `Last updated: ${getWIBTime()}`;
         } else {
           document.getElementById('verse').textContent = "Could not load verse.";
         }
@@ -58,6 +91,8 @@
         console.error(e);
       }
     }
+
+    // Load verse when page opens
     getBibleVerse();
   </script>
 </body>
