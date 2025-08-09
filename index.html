@@ -3,102 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Quote of the Day</title>
+  <title>Bible Verse</title>
   <style>
-    :root { --bg:#ffffff; --card:#fbfbfb; --text:#222; --muted:#666; --accent:#0b78d1; }
-    html,body { height:100%; margin:0; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:var(--bg); }
-    .wrap { display:flex; align-items:center; justify-content:center; height:100%; padding:18px; box-sizing:border-box; }
-    .card {
-      width:100%; max-width:540px; background:var(--card); border-radius:12px;
-      box-shadow:0 6px 18px rgba(15,30,50,0.06); padding:28px 26px; text-align:center;
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: "Georgia", "Times New Roman", serif;
+      background: linear-gradient(135deg, #fff8e7, #fdfcf7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4b3621;
     }
-    #quote { font-size:1.25rem; line-height:1.4; color:var(--text); margin-bottom:12px; }
-    #author { color:var(--muted); font-size:0.98rem; margin-bottom:8px; }
-    #note { color:#999; font-size:0.82rem; margin-top:10px; }
-    a.inline { color:var(--accent); text-decoration:none; }
-    @media (max-width:420px){
-      .card{ padding:18px; border-radius:10px; }
-      #quote{ font-size:1.05rem; }
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 40px 30px;
+      max-width: 700px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    #verse {
+      font-size: 1.8rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    #reference {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #6b4226;
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card" role="region" aria-label="Quote of the day">
-      <div id="quote" aria-live="polite">Loading quote…</div>
-      <div id="author"></div>
-      <div id="note">Source: <a class="inline" href="https://quotable.io" target="_blank" rel="noopener noreferrer">Quotable API</a> — fallback used if the API is blocked.</div>
-    </div>
+  <div class="card">
+    <div id="verse">Loading verse…</div>
+    <div id="reference"></div>
   </div>
 
   <script>
-  (function () {
-    const quoteEl = document.getElementById('quote');
-    const authorEl = document.getElementById('author');
-
-    // Local fallback quotes — used if API fails.
-    const fallback = [
-      { q: "Be kind. Be curious. Keep learning.", a: "Unknown" },
-      { q: "Small steps every day add up to big results.", a: "Unknown" },
-      { q: "Progress, not perfection.", a: "Unknown" },
-      { q: "Start where you are, use what you have.", a: "Unknown" },
-      { q: "Turn your can'ts into cans and your dreams into plans.", a: "Unknown" },
-      { q: "Do the next thing that needs doing.", a: "Unknown" },
-      { q: "Courage is a habit, not a trait.", a: "Unknown" },
-      { q: "Simplicity is the ultimate sophistication.", a: "Unknown" },
-      { q: "Focus on being productive instead of busy.", a: "Unknown" },
-      { q: "Small daily improvements lead to stunning results.", a: "Unknown" }
-    ];
-
-    function show(text, author) {
-      quoteEl.textContent = '"' + text + '"';
-      authorEl.textContent = author ? '— ' + author : '';
-    }
-
-    // Choose a deterministic "daily" fallback index (changes once per day).
-    function fallbackIndex() {
-      // number of days since epoch (UTC-based)
-      const days = Math.floor(Date.now() / 86400000);
-      return days % fallback.length;
-    }
-
-    async function fetchQuotable() {
+    async function getBibleVerse() {
       try {
-        // short timeout controller
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 8000);
-        const res = await fetch('https://api.quotable.io/random', { signal: controller.signal, mode: 'cors' });
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const res = await fetch("https://labs.bible.org/api/?passage=random&type=json");
         const data = await res.json();
-        if (data && data.content) {
-          show(data.content, data.author || 'Unknown');
-          return;
+        if (data && data.length > 0) {
+          const verseData = data[0];
+          document.getElementById('verse').textContent = `"${verseData.text.trim()}"`;
+          document.getElementById('reference').textContent = `${verseData.bookname} ${verseData.chapter}:${verseData.verse}`;
+        } else {
+          document.getElementById('verse').textContent = "Could not load verse.";
         }
-        throw new Error('No content in API response');
-      } catch (err) {
-        // fallback if API call fails (CORS, network, blocked in iframe, etc.)
-        console.warn('Quotable fetch failed — using fallback. ', err && err.message);
-        const idx = fallbackIndex();
-        show(fallback[idx].q, fallback[idx].a);
+      } catch (e) {
+        document.getElementById('verse').textContent = "Error loading verse.";
+        console.error(e);
       }
     }
-
-    // initial load
-    fetchQuotable();
-
-    // If user keeps the page open past local midnight, refresh exactly at midnight so daily fallback changes.
-    (function scheduleMidnightRefresh() {
-      const now = new Date();
-      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      const ms = midnight - now;
-      // schedule one timeout to run at midnight, then refresh every 24 hours afterward.
-      setTimeout(() => {
-        fetchQuotable();
-        setInterval(fetchQuotable, 24 * 60 * 60 * 1000);
-      }, ms);
-    })();
-  })();
+    getBibleVerse();
   </script>
 </body>
 </html>
