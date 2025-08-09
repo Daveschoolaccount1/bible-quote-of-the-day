@@ -1,94 +1,90 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Daily Bible Verse</title>
-  <style>
-    body {
-      font-family: 'Georgia', serif;
-      background: linear-gradient(to bottom, #fff8e1, #ffecb3);
-      color: #4e342e;
-      text-align: center;
-      padding: 40px;
-    }
-    .verse {
-      font-size: 1.8em;
-      font-style: italic;
-      max-width: 800px;
-      margin: auto;
-      background: rgba(255, 255, 255, 0.85);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .reference {
-      margin-top: 15px;
-      font-size: 1.2em;
-      font-weight: bold;
-    }
-    .timestamp {
-      margin-top: 20px;
-      font-size: 0.9em;
-      color: #6d4c41;
-    }
-    button {
-      margin-top: 25px;
-      padding: 12px 20px;
-      font-size: 1em;
-      border: none;
-      background: #ffca28;
-      color: #4e342e;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #ffc107;
-    }
-  </style>
-</head>
-<body>
-  <div class="verse" id="verse">Loading...</div>
-  <div class="reference" id="reference"></div>
-  <div class="timestamp" id="timestamp"></div>
-  <button onclick="getVerse()">Get Another Verse</button>
+<div id="verse-container">
+  <div id="verse-text">Loading verse...</div>
+  <div id="verse-ref"></div>
+  <div id="verse-time"></div>
+  <button id="new-verse-btn">Get Another Verse</button>
+</div>
 
-  <script>
-    async function getVerse() {
-      try {
-        const response = await fetch('https://beta.ourmanna.com/api/v1/get/?format=json&order=random');
-        const data = await response.json();
-        let text = data.verse.details.text.trim();
-        let ref = data.verse.details.reference.trim();
+<style>
+  /* Container styling */
+  #verse-container {
+    display: inline-block;
+    background: linear-gradient(to bottom, #fff8e1, #ffecb3);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-family: 'Georgia', serif;
+    text-align: center;
+    max-width: 600px;
+    transition: background-color 0.4s ease;
+  }
 
-        // Filtering
-        const lower = text.toLowerCase();
-        const badPatterns = [
-          /son of [a-z]+/i,          // genealogy
-          /\b[0-9]+\s*cubits?\b/i,  // measurements
-          /king\s+[a-z]+/i           // kings lists
-        ];
+  /* Verse text */
+  #verse-text {
+    font-size: 1.4em;
+    font-style: italic;
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #4e342e;
+  }
 
-        if (badPatterns.some(pattern => pattern.test(lower))) {
-          return getVerse(); // Try again if it matches a bad pattern
-        }
+  /* Reference */
+  #verse-ref {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #3e2723;
+  }
 
-        document.getElementById('verse').innerText = `"${text}"`;
-        document.getElementById('reference').innerText = `${ref} (NIV)`;
+  /* Timestamp */
+  #verse-time {
+    font-size: 0.85em;
+    color: #6d4c41;
+    margin-bottom: 15px;
+  }
 
-        // WIB timestamp
-        const now = new Date();
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' };
-        document.getElementById('timestamp').innerText =
-          `Last updated: ${now.toLocaleString('en-US', options)} WIB`;
+  /* Button */
+  #new-verse-btn {
+    background-color: #fbc02d;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #3e2723;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  #new-verse-btn:hover {
+    background-color: #f9a825;
+  }
+</style>
 
-      } catch (error) {
-        document.getElementById('verse').innerText = "Error fetching verse.";
-        document.getElementById('reference').innerText = "";
+<script>
+  async function fetchVerse() {
+    try {
+      const response = await fetch("https://labs.bible.org/api/?passage=random&type=json");
+      const data = await response.json();
+
+      // Filter out boring sections
+      const excluded = ["genealogy", "temple", "measurements", "king"];
+      const verseText = data[0].text;
+      const bookName = data[0].bookname;
+      const chapter = data[0].chapter;
+      const verseNum = data[0].verse;
+
+      if (excluded.some(term => verseText.toLowerCase().includes(term))) {
+        return fetchVerse(); // get another verse
       }
-    }
 
-    getVerse();
-  </script>
-</body>
-</html>
+      document.getElementById("verse-text").textContent = `"${verseText}"`;
+      document.getElementById("verse-ref").textContent = `${bookName} ${chapter}:${verseNum} (NIV)`;
+      document.getElementById("verse-time").textContent = 
+        "Last updated: " + new Date().toLocaleString();
+    } catch (error) {
+      document.getElementById("verse-text").textContent = "Error loading verse.";
+    }
+  }
+
+  document.getElementById("new-verse-btn").addEventListener("click", fetchVerse);
+  fetchVerse(); // Load verse immediately on page load
+</script>
