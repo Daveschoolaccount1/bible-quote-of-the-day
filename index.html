@@ -20,7 +20,7 @@
       padding: 20px;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: inline-block;
+      display: inline-block; /* dynamic width & height */
     }
     .reference {
       margin-top: 15px;
@@ -58,7 +58,9 @@
     async function getVerse() {
       try {
         const url = 'https://beta.ourmanna.com/api/v1/get/?format=json&order=random';
-        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+        const proxyUrl = 'https://api.allorigins.win/get?url=' 
+          + encodeURIComponent(url) 
+          + '&timestamp=' + new Date().getTime(); // cache-busting
 
         const response = await fetch(proxyUrl);
         const proxyData = await response.json();
