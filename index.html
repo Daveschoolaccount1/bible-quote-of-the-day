@@ -6,94 +6,226 @@
   <style>
     body {
       font-family: 'Georgia', serif;
-      background: linear-gradient(to bottom, #fff8e1, #ffecb3);
-      color: #4e342e;
+      background: linear-gradient(to bottom, #fffdf7, #fdf2d0);
+      color: #3e2723;
       text-align: center;
-      padding: 40px;
+      padding: 30px;
+      margin: 0;
     }
+
+    .verse-container {
+      display: inline-block;
+      max-width: 90%;
+      background: rgba(255, 255, 255, 0.92);
+      padding: 25px;
+      border-radius: 18px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
     .verse {
-      font-size: 1.8em;
+      font-size: clamp(1.4em, 2.5vw, 1.9em);
       font-style: italic;
-      max-width: 800px;
-      margin: auto;
-      background: rgba(255, 255, 255, 0.85);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: inline-block; /* dynamic width & height */
+      line-height: 1.6;
     }
+
     .reference {
       margin-top: 15px;
-      font-size: 1.2em;
+      font-size: clamp(1em, 1.5vw, 1.2em);
       font-weight: bold;
-    }
-    .timestamp {
-      margin-top: 20px;
-      font-size: 0.9em;
       color: #6d4c41;
     }
+
+    .timestamp {
+      margin-top: 18px;
+      font-size: 0.9em;
+      color: #8d6e63;
+    }
+
     button {
       margin-top: 25px;
-      padding: 12px 20px;
+      padding: 12px 24px;
       font-size: 1em;
       border: none;
-      background: #ffca28;
-      color: #4e342e;
+      background: #fdd835;
+      color: #3e2723;
       cursor: pointer;
       border-radius: 8px;
-      transition: background 0.3s;
+      transition: background 0.3s, transform 0.15s;
     }
+
     button:hover {
-      background: #ffc107;
+      background: #fbc02d;
+      transform: scale(1.03);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <div class="verse" id="verse">Loading...</div>
-  <div class="reference" id="reference"></div>
-  <div class="timestamp" id="timestamp"></div>
-  <button onclick="getVerse()">Get Another Verse</button>
+  <div class="verse-container">
+    <div class="verse" id="verse">Loading...</div>
+    <div class="reference" id="reference"></div>
+    <div class="timestamp" id="timestamp"></div>
+    <button onclick="getVerse()">Get Another Verse</button>
+  </div>
 
   <script>
+    const fallbackVerses = [
+      { text: "The fear of the Lord is the beginning of knowledge, but fools despise wisdom and instruction.", ref: "Proverbs 1:7" },
+      { text: "For the Lord gives wisdom; from his mouth come knowledge and understanding.", ref: "Proverbs 2:6" },
+      { text: "Trust in the Lord with all your heart and lean not on your own understanding.", ref: "Proverbs 3:5" },
+      { text: "Blessed are those who find wisdom, those who gain understanding.", ref: "Proverbs 3:13" },
+      { text: "Do not withhold good from those to whom it is due, when it is in your power to act.", ref: "Proverbs 3:27" },
+      { text: "Get wisdom, get understanding; do not forget my words or turn away from them.", ref: "Proverbs 4:5" },
+      { text: "The beginning of wisdom is this: Get wisdom. Though it cost all you have, get understanding.", ref: "Proverbs 4:7" },
+      { text: "Above all else, guard your heart, for everything you do flows from it.", ref: "Proverbs 4:23" },
+      { text: "A gentle answer turns away wrath, but a harsh word stirs up anger.", ref: "Proverbs 15:1" },
+      { text: "Plans fail for lack of counsel, but with many advisers they succeed.", ref: "Proverbs 15:22" },
+      { text: "Commit to the Lord whatever you do, and he will establish your plans.", ref: "Proverbs 16:3" },
+      { text: "How much better to get wisdom than gold, to get insight rather than silver!", ref: "Proverbs 16:16" },
+      { text: "The name of the Lord is a fortified tower; the righteous run to it and are safe.", ref: "Proverbs 18:10" },
+      { text: "The tongue has the power of life and death, and those who love it will eat its fruit.", ref: "Proverbs 18:21" },
+      { text: "Many are the plans in a person’s heart, but it is the Lord’s purpose that prevails.", ref: "Proverbs 19:21" },
+      { text: "Start children off on the way they should go, and even when they are old they will not turn from it.", ref: "Proverbs 22:6" },
+      { text: "Do not wear yourself out to get rich; do not trust your own cleverness.", ref: "Proverbs 23:4" },
+      { text: "As iron sharpens iron, so one person sharpens another.", ref: "Proverbs 27:17" },
+      { text: "Where there is no vision, the people perish.", ref: "Proverbs 29:18" },
+      { text: "To everything there is a season, and a time for every purpose under heaven.", ref: "Ecclesiastes 3:1" },
+      { text: "Two are better than one, because they have a good return for their labor.", ref: "Ecclesiastes 4:9" },
+      { text: "The end of a matter is better than its beginning, and patience is better than pride.", ref: "Ecclesiastes 7:8" },
+      { text: "Wisdom is better than weapons of war, but one sinner destroys much good.", ref: "Ecclesiastes 9:18" },
+      { text: "The fear of the Lord is the beginning of wisdom; all who follow his precepts have good understanding.", ref: "Psalm 111:10" },
+      { text: "Your word is a lamp to my feet and a light to my path.", ref: "Psalm 119:105" },
+      { text: "The unfolding of your words gives light; it gives understanding to the simple.", ref: "Psalm 119:130" },
+      { text: "Blessed is the one who does not walk in step with the wicked or stand in the way that sinners take.", ref: "Psalm 1:1" },
+      { text: "Be still, and know that I am God.", ref: "Psalm 46:10" },
+      { text: "Teach us to number our days, that we may gain a heart of wisdom.", ref: "Psalm 90:12" },
+      { text: "For the Lord watches over the way of the righteous, but the way of the wicked leads to destruction.", ref: "Psalm 1:6" },
+      { text: "If any of you lacks wisdom, you should ask God, who gives generously to all without finding fault.", ref: "James 1:5" },
+      { text: "Everyone should be quick to listen, slow to speak and slow to become angry.", ref: "James 1:19" },
+      { text: "Do not merely listen to the word, and so deceive yourselves. Do what it says.", ref: "James 1:22" },
+      { text: "Who is wise and understanding among you? Let them show it by their good life.", ref: "James 3:13" },
+      { text: "The wisdom that comes from heaven is first of all pure; then peace-loving.", ref: "James 3:17" },
+      { text: "Do not be deceived: God cannot be mocked. A man reaps what he sows.", ref: "Galatians 6:7" },
+      { text: "Let us not become weary in doing good, for at the proper time we will reap a harvest if we do not give up.", ref: "Galatians 6:9" },
+      { text: "Do nothing out of selfish ambition or vain conceit. Rather, in humility value others above yourselves.", ref: "Philippians 2:3" },
+      { text: "I can do all this through him who gives me strength.", ref: "Philippians 4:13" },
+      { text: "Whatever you do, work at it with all your heart, as working for the Lord.", ref: "Colossians 3:23" },
+      { text: "Let the peace of Christ rule in your hearts.", ref: "Colossians 3:15" },
+      { text: "Be wise in the way you act toward outsiders; make the most of every opportunity.", ref: "Colossians 4:5" },
+      { text: "Do not be anxious about anything, but in every situation, by prayer and petition, present your requests to God.", ref: "Philippians 4:6" },
+      { text: "Set your minds on things above, not on earthly things.", ref: "Colossians 3:2" },
+      { text: "The Lord is my shepherd, I lack nothing.", ref: "Psalm 23:1" },
+      { text: "The Lord is close to the brokenhearted and saves those who are crushed in spirit.", ref: "Psalm 34:18" },
+      { text: "The Lord will fight for you; you need only to be still.", ref: "Exodus 14:14" },
+      { text: "Be strong and courageous. Do not be afraid; do not be discouraged.", ref: "Joshua 1:9" },
+      { text: "As for me and my household, we will serve the Lord.", ref: "Joshua 24:15" },
+      { text: "He has shown you, O mortal, what is good. And what does the Lord require of you? To act justly and to love mercy and to walk humbly with your God.", ref: "Micah 6:8" },
+      { text: "For I know the plans I have for you, declares the Lord.", ref: "Jeremiah 29:11" },
+      { text: "Before I formed you in the womb I knew you, before you were born I set you apart.", ref: "Jeremiah 1:5" },
+      { text: "Call to me and I will answer you and tell you great and unsearchable things you do not know.", ref: "Jeremiah 33:3" },
+      { text: "The grass withers and the flowers fall, but the word of our God endures forever.", ref: "Isaiah 40:8" },
+      { text: "Whether you turn to the right or to the left, your ears will hear a voice saying, 'This is the way; walk in it.'", ref: "Isaiah 30:21" },
+      { text: "Do you not know? Have you not heard? The Lord is the everlasting God.", ref: "Isaiah 40:28" },
+      { text: "He gives strength to the weary and increases the power of the weak.", ref: "Isaiah 40:29" },
+      { text: "Those who hope in the Lord will renew their strength.", ref: "Isaiah 40:31" },
+      { text: "Do to others as you would have them do to you.", ref: "Luke 6:31" },
+      { text: "Love your enemies and pray for those who persecute you.", ref: "Matthew 5:44" },
+      { text: "Seek first his kingdom and his righteousness, and all these things will be given to you as well.", ref: "Matthew 6:33" },
+      { text: "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.", ref: "Matthew 7:7" },
+      { text: "So in everything, do to others what you would have them do to you.", ref: "Matthew 7:12" },
+      { text: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28" },
+      { text: "With man this is impossible, but with God all things are possible.", ref: "Matthew 19:26" },
+      { text: "A new command I give you: Love one another. As I have loved you, so you must love one another.", ref: "John 13:34" },
+      { text: "Greater love has no one than this: to lay down one’s life for one’s friends.", ref: "John 15:13" },
+      { text: "I am the way and the truth and the life. No one comes to the Father except through me.", ref: "John 14:6" },
+      { text: "Peace I leave with you; my peace I give you.", ref: "John 14:27" },
+      { text: "In this world you will have trouble. But take heart! I have overcome the world.", ref: "John 16:33" },
+      { text: "Do not conform to the pattern of this world, but be transformed by the renewing of your mind.", ref: "Romans 12:2" },
+      { text: "Be joyful in hope, patient in affliction, faithful in prayer.", ref: "Romans 12:12" },
+      { text: "If God is for us, who can be against us?", ref: "Romans 8:31" },
+      { text: "And we know that in all things God works for the good of those who love him.", ref: "Romans 8:28" },
+      { text: "The wages of sin is death, but the gift of God is eternal life in Christ Jesus our Lord.", ref: "Romans 6:23" },
+      { text: "For all have sinned and fall short of the glory of God.", ref: "Romans 3:23" },
+      { text: "Therefore, if anyone is in Christ, the new creation has come: The old has gone, the new is here!", ref: "2 Corinthians 5:17" },
+      { text: "My grace is sufficient for you, for my power is made perfect in weakness.", ref: "2 Corinthians 12:9" },
+      { text: "We live by faith, not by sight.", ref: "2 Corinthians 5:7" },
+      { text: "Do not be misled: Bad company corrupts good character.", ref: "1 Corinthians 15:33" },
+      { text: "And now these three remain: faith, hope and love. But the greatest of these is love.", ref: "1 Corinthians 13:13" },
+      { text: "So whether you eat or drink or whatever you do, do it all for the glory of God.", ref: "1 Corinthians 10:31" },
+      { text: "Let all that you do be done in love.", ref: "1 Corinthians 16:14" },
+      { text: "For the message of the cross is foolishness to those who are perishing, but to us who are being saved it is the power of God.", ref: "1 Corinthians 1:18" },
+      { text: "God is faithful; he will not let you be tempted beyond what you can bear.", ref: "1 Corinthians 10:13" },
+      { text: "Therefore encourage one another and build each other up.", ref: "1 Thessalonians 5:11" },
+      { text: "Pray continually.", ref: "1 Thessalonians 5:17" },
+      { text: "Give thanks in all circumstances; for this is God’s will for you in Christ Jesus.", ref: "1 Thessalonians 5:18" },
+      { text: "Let us hold unswervingly to the hope we profess, for he who promised is faithful.", ref: "Hebrews 10:23" },
+      { text: "Do not forget to show hospitality to strangers.", ref: "Hebrews 13:2" },
+      { text: "Jesus Christ is the same yesterday and today and forever.", ref: "Hebrews 13:8" },
+      { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" },
+      { text: "Above all, love each other deeply, because love covers over a multitude of sins.", ref: "1 Peter 4:8" },
+      { text: "Humble yourselves, therefore, under God’s mighty hand, that he may lift you up in due time.", ref: "1 Peter 5:6" },
+      { text: "But grow in the grace and knowledge of our Lord and Savior Jesus Christ.", ref: "2 Peter 3:18" }
+    ];
+
     async function getVerse() {
       try {
         const url = 'https://beta.ourmanna.com/api/v1/get/?format=json&order=random';
         const proxyUrl = 'https://api.allorigins.win/get?url=' 
           + encodeURIComponent(url) 
-          + '&timestamp=' + new Date().getTime(); // cache-busting
+          + '&timestamp=' + new Date().getTime();
 
-        const response = await fetch(proxyUrl);
+        const response = await fetch(proxyUrl, { cache: 'no-store' });
+        if (!response.ok) throw new Error("Network error");
+
         const proxyData = await response.json();
+        if (!proxyData.contents) throw new Error("Empty response");
+
         const data = JSON.parse(proxyData.contents);
 
         let text = data.verse.details.text.trim();
         let ref = data.verse.details.reference.trim();
 
-        // Filtering
-        const lower = text.toLowerCase();
         const badPatterns = [
-          /son of [a-z]+/i,          // genealogy
-          /\b[0-9]+\s*cubits?\b/i,  // measurements
-          /king\s+[a-z]+/i           // kings lists
+          /son of [a-z]+/i,
+          /\b[0-9]+\s*cubits?\b/i,
+          /king\s+[a-z]+/i
         ];
 
-        if (badPatterns.some(pattern => pattern.test(lower))) {
-          return getVerse(); // Try again if it matches a bad pattern
+        if (badPatterns.some(pattern => pattern.test(text.toLowerCase()))) {
+          throw new Error("Filtered content");
         }
 
-        document.getElementById('verse').innerText = `"${text}"`;
-        document.getElementById('reference').innerText = `${ref} (NIV)`;
-
-        // WIB timestamp
-        const now = new Date();
-        const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta' };
-        document.getElementById('timestamp').innerText =
-          `Last updated: ${now.toLocaleString('en-US', options)} WIB`;
+        displayVerse(text, ref);
 
       } catch (error) {
-        document.getElementById('verse').innerText = "Error fetching verse.";
-        document.getElementById('reference').innerText = "";
+        // Use fallback
+        const randomVerse = fallbackVerses[Math.floor(Math.random() * fallbackVerses.length)];
+        displayVerse(randomVerse.text, randomVerse.ref + " (NIV)");
       }
+    }
+
+    function displayVerse(text, ref) {
+      document.getElementById('verse').innerText = `"${text}"`;
+      document.getElementById('reference').innerText = ref;
+
+      const now = new Date();
+      const options = { 
+        hour: '2-digit', minute: '2-digit', second: '2-digit', 
+        day: 'numeric', month: 'short', year: 'numeric', 
+        timeZone: 'Asia/Jakarta' 
+      };
+      document.getElementById('timestamp').innerText =
+        `Last updated: ${now.toLocaleString('en-US', options)} WIB`;
+
+      const container = document.querySelector('.verse-container');
+      container.style.animation = 'none';
+      container.offsetHeight;
+      container.style.animation = 'fadeIn 0.5s ease-in-out';
     }
 
     getVerse();
